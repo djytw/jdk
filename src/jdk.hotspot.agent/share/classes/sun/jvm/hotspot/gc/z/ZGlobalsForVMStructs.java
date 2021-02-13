@@ -37,6 +37,8 @@ class ZGlobalsForVMStructs extends VMObject {
     private static AddressField ZAddressGoodMaskField;
     private static AddressField ZAddressBadMaskField;
     private static AddressField ZAddressWeakBadMaskField;
+    private static AddressField ZObjectAlignmentTinyShiftField;
+    private static AddressField ZObjectAlignmentTinyField;
     private static AddressField ZObjectAlignmentSmallShiftField;
     private static AddressField ZObjectAlignmentSmallField;
 
@@ -52,6 +54,8 @@ class ZGlobalsForVMStructs extends VMObject {
         ZAddressGoodMaskField = type.getAddressField("_ZAddressGoodMask");
         ZAddressBadMaskField = type.getAddressField("_ZAddressBadMask");
         ZAddressWeakBadMaskField = type.getAddressField("_ZAddressWeakBadMask");
+        ZObjectAlignmentTinyShiftField = type.getAddressField("_ZObjectAlignmentTinyShift");
+        ZObjectAlignmentTinyField = type.getAddressField("_ZObjectAlignmentTiny");
         ZObjectAlignmentSmallShiftField = type.getAddressField("_ZObjectAlignmentSmallShift");
         ZObjectAlignmentSmallField = type.getAddressField("_ZObjectAlignmentSmall");
     }
@@ -78,6 +82,14 @@ class ZGlobalsForVMStructs extends VMObject {
 
     long ZAddressWeakBadMask() {
         return ZAddressWeakBadMaskField.getValue(addr).getJLongAt(0);
+    }
+
+    int ZObjectAlignmentTinyShift() {
+        return ZObjectAlignmentTinyShiftField.getValue(addr).getJIntAt(0);
+    }
+
+    int ZObjectAlignmentTiny() {
+        return ZObjectAlignmentTinyField.getValue(addr).getJIntAt(0);
     }
 
     int ZObjectAlignmentSmallShift() {

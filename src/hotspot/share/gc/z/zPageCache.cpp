@@ -55,6 +55,7 @@ ZPageCacheFlushClosure::ZPageCacheFlushClosure(size_t requested) :
     _flushed(0) {}
 
 ZPageCache::ZPageCache() :
+    _tiny(),
     _small(),
     _medium(),
     _large(),
@@ -80,6 +81,37 @@ ZPage* ZPageCache::alloc_small_page() {
     }
 
     ZPage* const l2_page = _small.get(remote_numa_id).remove_first();
+    if (l2_page != NULL) {
+      ZStatInc(ZCounterPageCacheHitL2);
+      return l2_page;
+    }
+
+    remote_numa_id++;
+  }
+
+  return NULL;
+}
+
+ZPage* ZPageCache::alloc_tiny_page() {
+  const uint32_t numa_id = ZNUMA::id();
+  const uint32_t numa_count = ZNUMA::count();
+
+  // Try NUMA local page cache
+  ZPage* const l1_page = _tiny.get(numa_id).remove_first();
+  if (l1_page != NULL) {
+    ZStatInc(ZCounterPageCacheHitL1);
+    return l1_page;
+  }
+
+  // Try NUMA remote page cache(s)
+  uint32_t remote_numa_id = numa_id + 1;
+  const uint32_t remote_numa_count = numa_count - 1;
+  for (uint32_t i = 0; i < remote_numa_count; i++) {
+    if (remote_numa_id == numa_count) {
+      remote_numa_id = 0;
+    }
+
+    ZPage* const l2_page = _tiny.get(remote_numa_id).remove_first();
     if (l2_page != NULL) {
       ZStatInc(ZCounterPageCacheHitL2);
       return l2_page;
@@ -155,7 +187,9 @@ ZPage* ZPageCache::alloc_page(uint8_t type, size_t size) {
   ZPage* page;
 
   // Try allocate exact page
-  if (type == ZPageTypeSmall) {
+  if (type == ZPageTypeTiny) {
+    page = alloc_tiny_page();
+  } else if (type == ZPageTypeSmall) {
     page = alloc_small_page();
   } else if (type == ZPageTypeMedium) {
     page = alloc_medium_page();
@@ -189,7 +223,9 @@ ZPage* ZPageCache::alloc_page(uint8_t type, size_t size) {
 
 void ZPageCache::free_page(ZPage* page) {
   const uint8_t type = page->type();
-  if (type == ZPageTypeSmall) {
+  if (type == ZPageTypeTiny) {
+    _tiny.get(page->numa_id()).insert_first(page);
+  } else if (type == ZPageTypeSmall) {
     _small.get(page->numa_id()).insert_first(page);
   } else if (type == ZPageTypeMedium) {
     _medium.insert_first(page);
@@ -333,9 +369,18 @@ void ZPageCache::set_last_commit() {
 }
 
 void ZPageCache::pages_do(ZPageClosure* cl) const {
+  // Tiny
+  ZPerNUMAConstIterator<ZList<ZPage> > iter_numa_tiny(&_tiny);
+  for (const ZList<ZPage>* list; iter_numa_tiny.next(&list);) {
+    ZListIterator<ZPage> iter_tiny(list);
+    for (ZPage* page; iter_tiny.next(&page);) {
+      cl->do_page(page);
+    }
+  }
+
   // Small
-  ZPerNUMAConstIterator<ZList<ZPage> > iter_numa(&_small);
-  for (const ZList<ZPage>* list; iter_numa.next(&list);) {
+  ZPerNUMAConstIterator<ZList<ZPage> > iter_numa_small(&_small);
+  for (const ZList<ZPage>* list; iter_numa_small.next(&list);) {
     ZListIterator<ZPage> iter_small(list);
     for (ZPage* page; iter_small.next(&page);) {
       cl->do_page(page);

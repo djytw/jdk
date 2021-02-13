@@ -38,8 +38,10 @@ private:
   ZForwardingAllocator* const    _allocator;
   ZForwarding**                  _forwardings;
   const size_t                   _nforwardings;
+  ZArrayParallelIterator<ZPage*> _tiny_iter;
   ZArrayParallelIterator<ZPage*> _small_iter;
   ZArrayParallelIterator<ZPage*> _medium_iter;
+  volatile size_t                _tiny_next;
   volatile size_t                _small_next;
   volatile size_t                _medium_next;
 
@@ -47,6 +49,10 @@ private:
     const size_t index = Atomic::fetch_and_add(next, 1u);
     assert(index < _nforwardings, "Invalid index");
     _forwardings[index] = forwarding;
+  }
+
+  void install_tiny(ZForwarding* forwarding) {
+    install(forwarding, &_tiny_next);
   }
 
   void install_small(ZForwarding* forwarding) {
@@ -62,9 +68,11 @@ public:
       ZTask("ZRelocationSetInstallTask"),
       _allocator(allocator),
       _forwardings(NULL),
-      _nforwardings(selector->small()->length() + selector->medium()->length()),
+      _nforwardings(selector->tiny()->length() + selector->small()->length() + selector->medium()->length()),
+      _tiny_iter(selector->tiny()),
       _small_iter(selector->small()),
       _medium_iter(selector->medium()),
+      _tiny_next(selector->medium()->length() + selector->small()->length()),
       _small_next(selector->medium()->length()),
       _medium_next(0) {
 
@@ -84,6 +92,11 @@ public:
   }
 
   virtual void work() {
+    // Allocate and install forwardings for tiny pages
+    for (ZPage* page; _tiny_iter.next(&page);) {
+      ZForwarding* const forwarding = ZForwarding::alloc(_allocator, page);
+      install_tiny(forwarding);
+    }
     // Allocate and install forwardings for small pages
     for (ZPage* page; _small_iter.next(&page);) {
       ZForwarding* const forwarding = ZForwarding::alloc(_allocator, page);

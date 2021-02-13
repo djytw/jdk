@@ -44,7 +44,8 @@ ZObjectAllocator::ZObjectAllocator() :
     _used(0),
     _undone(0),
     _shared_medium_page(NULL),
-    _shared_small_page(NULL) {}
+    _shared_small_page(NULL),
+    _shared_tiny_page(NULL) {}
 
 ZPage** ZObjectAllocator::shared_small_page_addr() {
   return _use_per_cpu_shared_small_pages ? _shared_small_page.addr() : _shared_small_page.addr(0);
@@ -52,6 +53,14 @@ ZPage** ZObjectAllocator::shared_small_page_addr() {
 
 ZPage* const* ZObjectAllocator::shared_small_page_addr() const {
   return _use_per_cpu_shared_small_pages ? _shared_small_page.addr() : _shared_small_page.addr(0);
+}
+
+ZPage** ZObjectAllocator::shared_tiny_page_addr() {
+  return _use_per_cpu_shared_small_pages ? _shared_tiny_page.addr() : _shared_tiny_page.addr(0);
+}
+
+ZPage* const* ZObjectAllocator::shared_tiny_page_addr() const {
+  return _use_per_cpu_shared_small_pages ? _shared_tiny_page.addr() : _shared_tiny_page.addr(0);
 }
 
 ZPage* ZObjectAllocator::alloc_page(uint8_t type, size_t size, ZAllocationFlags flags) {
@@ -142,8 +151,15 @@ uintptr_t ZObjectAllocator::alloc_small_object(size_t size, ZAllocationFlags fla
   return alloc_object_in_shared_page(shared_small_page_addr(), ZPageTypeSmall, ZPageSizeSmall, size, flags);
 }
 
+uintptr_t ZObjectAllocator::alloc_tiny_object(size_t size, ZAllocationFlags flags) {
+  return alloc_object_in_shared_page(shared_tiny_page_addr(), ZPageTypeTiny, ZPageSizeTiny, size, flags);
+}
+
 uintptr_t ZObjectAllocator::alloc_object(size_t size, ZAllocationFlags flags) {
-  if (size <= ZObjectSizeLimitSmall) {
+  if (size <= ZObjectSizeLimitTiny) {
+    // Tiny
+    return alloc_tiny_object(size, flags);
+  } else if (size <= ZObjectSizeLimitSmall) {
     // Small
     return alloc_small_object(size, flags);
   } else if (size <= ZObjectSizeLimitMedium) {
@@ -219,4 +235,5 @@ void ZObjectAllocator::retire_pages() {
   // Reset allocation pages
   _shared_medium_page.set(NULL);
   _shared_small_page.set_all(NULL);
+  _shared_tiny_page.set_all(NULL);
 }

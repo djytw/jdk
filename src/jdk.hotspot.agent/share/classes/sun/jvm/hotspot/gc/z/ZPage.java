@@ -142,7 +142,9 @@ public class ZPage extends VMObject implements LiveRegionsProvider {
     }
 
     long object_alignment_shift() {
-        if (type() == ZGlobals.ZPageTypeSmall) {
+        if (type() == ZGlobals.ZPageTypeTiny) {
+            return ZGlobals.ZObjectAlignmentTinyShift();
+        } else if (type() == ZGlobals.ZPageTypeSmall) {
             return ZGlobals.ZObjectAlignmentSmallShift();
         } else if (type() == ZGlobals.ZPageTypeMedium) {
             return ZGlobals.ZObjectAlignmentMediumShift;

@@ -49,6 +49,9 @@ public:
   uintptr_t* _ZAddressBadMask;
   uintptr_t* _ZAddressWeakBadMask;
 
+  const int* _ZObjectAlignmentTinyShift;
+  const int* _ZObjectAlignmentTiny;
+
   const int* _ZObjectAlignmentSmallShift;
   const int* _ZObjectAlignmentSmall;
 };
@@ -63,6 +66,8 @@ typedef ZAttachedArray<ZForwarding, ZForwardingEntry> ZAttachedArrayForForwardin
   nonstatic_field(ZGlobalsForVMStructs,         _ZAddressGoodMask,    uintptr_t*)                    \
   nonstatic_field(ZGlobalsForVMStructs,         _ZAddressBadMask,     uintptr_t*)                    \
   nonstatic_field(ZGlobalsForVMStructs,         _ZAddressWeakBadMask, uintptr_t*)                    \
+  nonstatic_field(ZGlobalsForVMStructs,         _ZObjectAlignmentTinyShift, const int*)              \
+  nonstatic_field(ZGlobalsForVMStructs,         _ZObjectAlignmentTiny, const int*)                   \
   nonstatic_field(ZGlobalsForVMStructs,         _ZObjectAlignmentSmallShift, const int*)             \
   nonstatic_field(ZGlobalsForVMStructs,         _ZObjectAlignmentSmall, const int*)                  \
                                                                                                      \
@@ -91,6 +96,7 @@ typedef ZAttachedArray<ZForwarding, ZForwardingEntry> ZAttachedArrayForForwardin
 
 #define VM_INT_CONSTANTS_ZGC(declare_constant, declare_constant_with_value)                          \
   declare_constant(ZPhaseRelocate)                                                                   \
+  declare_constant(ZPageTypeTiny)                                                                   \
   declare_constant(ZPageTypeSmall)                                                                   \
   declare_constant(ZPageTypeMedium)                                                                  \
   declare_constant(ZPageTypeLarge)                                                                   \
@@ -99,6 +105,7 @@ typedef ZAttachedArray<ZForwarding, ZForwardingEntry> ZAttachedArrayForForwardin
 
 #define VM_LONG_CONSTANTS_ZGC(declare_constant)                                                      \
   declare_constant(ZGranuleSizeShift)                                                                \
+  declare_constant(ZPageSizeTinyShift)                                                              \
   declare_constant(ZPageSizeSmallShift)                                                              \
   declare_constant(ZPageSizeMediumShift)                                                             \
   declare_constant(ZAddressOffsetShift)                                                              \

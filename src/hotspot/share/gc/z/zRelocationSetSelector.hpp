@@ -53,11 +53,13 @@ class ZRelocationSetSelectorStats {
   friend class ZRelocationSetSelector;
 
 private:
+  ZRelocationSetSelectorGroupStats _tiny;
   ZRelocationSetSelectorGroupStats _small;
   ZRelocationSetSelectorGroupStats _medium;
   ZRelocationSetSelectorGroupStats _large;
 
 public:
+  const ZRelocationSetSelectorGroupStats& tiny() const;
   const ZRelocationSetSelectorGroupStats& small() const;
   const ZRelocationSetSelectorGroupStats& medium() const;
   const ZRelocationSetSelectorGroupStats& large() const;
@@ -97,6 +99,7 @@ public:
 
 class ZRelocationSetSelector : public StackObj {
 private:
+  ZRelocationSetSelectorGroup _tiny;
   ZRelocationSetSelectorGroup _small;
   ZRelocationSetSelectorGroup _medium;
   ZRelocationSetSelectorGroup _large;
@@ -118,6 +121,7 @@ public:
 
   void select();
 
+  const ZArray<ZPage*>* tiny() const;
   const ZArray<ZPage*>* small() const;
   const ZArray<ZPage*>* medium() const;
   size_t forwarding_entries() const;

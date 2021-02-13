@@ -301,6 +301,7 @@ void ZCollectedHeap::print_on_error(outputStream* st) const {
                byte_size_in_exact_unit(ZAddressOffsetMax),
                exact_unit_for_byte_size(ZAddressOffsetMax),
                ZAddressOffsetMax);
+  st->print_cr(" Page Size Tiny:    " SIZE_FORMAT "M", ZPageSizeTiny / M);
   st->print_cr(" Page Size Small:   " SIZE_FORMAT "M", ZPageSizeSmall / M);
   st->print_cr(" Page Size Medium:  " SIZE_FORMAT "M", ZPageSizeMedium / M);
   st->cr();

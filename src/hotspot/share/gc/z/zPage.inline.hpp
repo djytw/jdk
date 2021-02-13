@@ -37,7 +37,9 @@
 #include "utilities/debug.hpp"
 
 inline uint8_t ZPage::type_from_size(size_t size) const {
-  if (size == ZPageSizeSmall) {
+  if (size == ZPageSizeTiny) {
+    return ZPageTypeTiny;
+  } else if (size == ZPageSizeSmall) {
     return ZPageTypeSmall;
   } else if (size == ZPageSizeMedium) {
     return ZPageTypeMedium;
@@ -48,6 +50,9 @@ inline uint8_t ZPage::type_from_size(size_t size) const {
 
 inline const char* ZPage::type_to_string() const {
   switch (type()) {
+  case ZPageTypeTiny:
+    return "Tiny";
+
   case ZPageTypeSmall:
     return "Small";
 
@@ -74,6 +79,9 @@ inline uint32_t ZPage::object_max_count() const {
 
 inline size_t ZPage::object_alignment_shift() const {
   switch (type()) {
+  case ZPageTypeTiny:
+    return ZObjectAlignmentTinyShift;
+
   case ZPageTypeSmall:
     return ZObjectAlignmentSmallShift;
 
@@ -88,6 +96,9 @@ inline size_t ZPage::object_alignment_shift() const {
 
 inline size_t ZPage::object_alignment() const {
   switch (type()) {
+  case ZPageTypeTiny:
+    return ZObjectAlignmentTiny;
+
   case ZPageTypeSmall:
     return ZObjectAlignmentSmall;
 

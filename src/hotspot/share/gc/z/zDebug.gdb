@@ -135,6 +135,7 @@ define zph
     printf "     GlobalPhase:       %u\n", ZGlobalPhase
     printf "     GlobalSeqNum:      %u\n", ZGlobalSeqNum
     printf "     Offset Max:        %-15llu (0x%llx)\n", ZAddressOffsetMax, ZAddressOffsetMax
+    printf "     Page Size Tiny:    %-15llu (0x%llx)\n", ZPageSizeTiny, ZPageSizeTiny
     printf "     Page Size Small:   %-15llu (0x%llx)\n", ZPageSizeSmall, ZPageSizeSmall
     printf "     Page Size Medium:  %-15llu (0x%llx)\n", ZPageSizeMedium, ZPageSizeMedium
     printf "Metadata Bits\n"

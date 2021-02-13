@@ -112,7 +112,7 @@ size_t ZHeap::tlab_used() const {
 }
 
 size_t ZHeap::max_tlab_size() const {
-  return ZObjectSizeLimitSmall;
+  return ZObjectSizeLimitTiny;
 }
 
 size_t ZHeap::unsafe_max_tlab_alloc() const {

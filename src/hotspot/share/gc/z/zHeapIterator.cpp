@@ -201,14 +201,14 @@ ZHeapIterator::~ZHeapIterator() {
 }
 
 static size_t object_index_max() {
-  return ZGranuleSize >> ZObjectAlignmentSmallShift;
+  return ZGranuleSize >> ZObjectAlignmentTinyShift;
 }
 
 static size_t object_index(oop obj) {
   const uintptr_t addr = ZOop::to_address(obj);
   const uintptr_t offset = ZAddress::offset(addr);
   const uintptr_t mask = ZGranuleSize - 1;
-  return (offset & mask) >> ZObjectAlignmentSmallShift;
+  return (offset & mask) >> ZObjectAlignmentTinyShift;
 }
 
 ZHeapIteratorBitMap* ZHeapIterator::object_bitmap(oop obj) {

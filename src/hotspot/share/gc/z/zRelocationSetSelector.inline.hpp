@@ -48,6 +48,10 @@ inline size_t ZRelocationSetSelectorGroupStats::relocate() const {
   return _relocate;
 }
 
+inline const ZRelocationSetSelectorGroupStats& ZRelocationSetSelectorStats::tiny() const {
+  return _tiny;
+}
+
 inline const ZRelocationSetSelectorGroupStats& ZRelocationSetSelectorStats::small() const {
   return _small;
 }
@@ -98,7 +102,9 @@ inline const ZRelocationSetSelectorGroupStats& ZRelocationSetSelectorGroup::stat
 inline void ZRelocationSetSelector::register_live_page(ZPage* page) {
   const uint8_t type = page->type();
 
-  if (type == ZPageTypeSmall) {
+  if (type == ZPageTypeTiny) {
+    _tiny.register_live_page(page);
+  } else if (type == ZPageTypeSmall) {
     _small.register_live_page(page);
   } else if (type == ZPageTypeMedium) {
     _medium.register_live_page(page);
@@ -110,7 +116,9 @@ inline void ZRelocationSetSelector::register_live_page(ZPage* page) {
 inline void ZRelocationSetSelector::register_empty_page(ZPage* page) {
   const uint8_t type = page->type();
 
-  if (type == ZPageTypeSmall) {
+  if (type == ZPageTypeTiny) {
+    _tiny.register_empty_page(page);
+  } else if (type == ZPageTypeSmall) {
     _small.register_empty_page(page);
   } else if (type == ZPageTypeMedium) {
     _medium.register_empty_page(page);
@@ -134,15 +142,19 @@ inline void ZRelocationSetSelector::clear_empty_pages() {
 }
 
 inline size_t ZRelocationSetSelector::total() const {
-  return _small.stats().total() + _medium.stats().total() + _large.stats().total();
+  return _tiny.stats().total() + _small.stats().total() + _medium.stats().total() + _large.stats().total();
 }
 
 inline size_t ZRelocationSetSelector::empty() const {
-  return _small.stats().empty() + _medium.stats().empty() + _large.stats().empty();
+  return _tiny.stats().empty() + _small.stats().empty() + _medium.stats().empty() + _large.stats().empty();
 }
 
 inline size_t ZRelocationSetSelector::relocate() const {
-  return _small.stats().relocate() + _medium.stats().relocate() + _large.stats().relocate();
+  return _tiny.stats().relocate() + _small.stats().relocate() + _medium.stats().relocate() + _large.stats().relocate();
+}
+
+inline const ZArray<ZPage*>* ZRelocationSetSelector::tiny() const {
+  return _tiny.selected();
 }
 
 inline const ZArray<ZPage*>* ZRelocationSetSelector::small() const {
@@ -154,7 +166,7 @@ inline const ZArray<ZPage*>* ZRelocationSetSelector::medium() const {
 }
 
 inline size_t ZRelocationSetSelector::forwarding_entries() const {
-  return _small.forwarding_entries() + _medium.forwarding_entries();
+  return _tiny.forwarding_entries() + _small.forwarding_entries() + _medium.forwarding_entries();
 }
 
 #endif // SHARE_GC_Z_ZRELOCATIONSETSELECTOR_INLINE_HPP

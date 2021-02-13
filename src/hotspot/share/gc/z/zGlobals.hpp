@@ -55,25 +55,31 @@ const size_t      ZVirtualToPhysicalRatio       = 16; // 16:1
 const uint8_t     ZPageTypeSmall                = 0;
 const uint8_t     ZPageTypeMedium               = 1;
 const uint8_t     ZPageTypeLarge                = 2;
+const uint8_t     ZPageTypeTiny                 = 3;
 
 // Page size shifts
+const size_t      ZPageSizeTinyShift            = ZGranuleSizeShift;
 const size_t      ZPageSizeSmallShift           = ZGranuleSizeShift;
 extern size_t     ZPageSizeMediumShift;
 
 // Page sizes
+const size_t      ZPageSizeTiny                 = (size_t)1 << ZPageSizeTinyShift;
 const size_t      ZPageSizeSmall                = (size_t)1 << ZPageSizeSmallShift;
 extern size_t     ZPageSizeMedium;
 
 // Object size limits
+const size_t      ZObjectSizeLimitTiny          = ZPageSizeTiny / 8192;
 const size_t      ZObjectSizeLimitSmall         = ZPageSizeSmall / 8; // 12.5% max waste
 extern size_t     ZObjectSizeLimitMedium;
 
 // Object alignment shifts
+extern const int& ZObjectAlignmentTinyShift;
 extern const int& ZObjectAlignmentSmallShift;
 extern int        ZObjectAlignmentMediumShift;
 const int         ZObjectAlignmentLargeShift    = ZGranuleSizeShift;
 
 // Object alignments
+extern const int& ZObjectAlignmentTiny;
 extern const int& ZObjectAlignmentSmall;
 extern int        ZObjectAlignmentMedium;
 const int         ZObjectAlignmentLarge         = 1 << ZObjectAlignmentLargeShift;

@@ -35,6 +35,7 @@ public class ZGlobals {
     // Global phase state
     public static int ZPhaseRelocate;
 
+    public static byte ZPageTypeTiny;
     public static byte ZPageTypeSmall;
     public static byte ZPageTypeMedium;
     public static byte ZPageTypeLarge;
@@ -43,6 +44,7 @@ public class ZGlobals {
     public static long ZGranuleSizeShift;
 
     // Page size shifts
+    public static long ZPageSizeTinyShift;
     public static long ZPageSizeSmallShift;
     public static long ZPageSizeMediumShift;
 
@@ -72,12 +74,14 @@ public class ZGlobals {
 
         ZPhaseRelocate = db.lookupIntConstant("ZPhaseRelocate").intValue();
 
+        ZPageTypeTiny = db.lookupIntConstant("ZPageTypeTiny").byteValue();
         ZPageTypeSmall = db.lookupIntConstant("ZPageTypeSmall").byteValue();
         ZPageTypeMedium = db.lookupIntConstant("ZPageTypeMedium").byteValue();
         ZPageTypeLarge = db.lookupIntConstant("ZPageTypeLarge").byteValue();
 
         ZGranuleSizeShift = db.lookupLongConstant("ZGranuleSizeShift").longValue();
 
+        ZPageSizeTinyShift = db.lookupLongConstant("ZPageSizeTinyShift").longValue();
         ZPageSizeSmallShift = db.lookupLongConstant("ZPageSizeSmallShift").longValue();
         ZPageSizeMediumShift = db.lookupLongConstant("ZPageSizeMediumShift").longValue();
 
@@ -115,6 +119,14 @@ public class ZGlobals {
 
     public static long ZAddressWeakBadMask() {
         return instance().ZAddressWeakBadMask();
+    }
+
+    public static int ZObjectAlignmentTinyShift() {
+        return instance().ZObjectAlignmentTinyShift();
+    }
+
+    public static int ZObjectAlignmentTiny() {
+        return instance().ZObjectAlignmentTiny();
     }
 
     public static int ZObjectAlignmentSmallShift() {

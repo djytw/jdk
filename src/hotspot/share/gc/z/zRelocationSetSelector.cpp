@@ -177,6 +177,7 @@ void ZRelocationSetSelectorGroup::select() {
 }
 
 ZRelocationSetSelector::ZRelocationSetSelector() :
+    _tiny("Tiny", ZPageTypeTiny, ZPageSizeTiny, ZObjectSizeLimitTiny),
     _small("Small", ZPageTypeSmall, ZPageSizeSmall, ZObjectSizeLimitSmall),
     _medium("Medium", ZPageTypeMedium, ZPageSizeMedium, ZObjectSizeLimitMedium),
     _large("Large", ZPageTypeLarge, 0 /* page_size */, 0 /* object_size_limit */),
@@ -195,6 +196,7 @@ void ZRelocationSetSelector::select() {
   _large.select();
   _medium.select();
   _small.select();
+  _tiny.select();
 
   // Send event
   event.commit(total(), empty(), relocate());
@@ -202,6 +204,7 @@ void ZRelocationSetSelector::select() {
 
 ZRelocationSetSelectorStats ZRelocationSetSelector::stats() const {
   ZRelocationSetSelectorStats stats;
+  stats._tiny = _tiny.stats();
   stats._small = _small.stats();
   stats._medium = _medium.stats();
   stats._large = _large.stats();

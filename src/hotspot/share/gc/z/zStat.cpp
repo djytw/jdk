@@ -1143,6 +1143,7 @@ void ZStatMark::print() {
 //
 ZRelocationSetSelectorStats ZStatRelocation::_selector_stats;
 size_t                      ZStatRelocation::_forwarding_usage;
+size_t                      ZStatRelocation::_tiny_in_place_count;
 size_t                      ZStatRelocation::_small_in_place_count;
 size_t                      ZStatRelocation::_medium_in_place_count;
 
@@ -1154,7 +1155,8 @@ void ZStatRelocation::set_at_install_relocation_set(size_t forwarding_usage) {
   _forwarding_usage = forwarding_usage;
 }
 
-void ZStatRelocation::set_at_relocate_end(size_t small_in_place_count, size_t medium_in_place_count) {
+void ZStatRelocation::set_at_relocate_end(size_t tiny_in_place_count, size_t small_in_place_count, size_t medium_in_place_count) {
+  _tiny_in_place_count = tiny_in_place_count;
   _small_in_place_count = small_in_place_count;
   _medium_in_place_count = medium_in_place_count;
 }

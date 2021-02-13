@@ -51,7 +51,8 @@ void ZPage::assert_initialized() const {
   assert(!_virtual.is_null(), "Should not be null");
   assert(!_physical.is_null(), "Should not be null");
   assert(_virtual.size() == _physical.size(), "Virtual/Physical size mismatch");
-  assert((_type == ZPageTypeSmall && size() == ZPageSizeSmall) ||
+  assert((_type == ZPageTypeTiny && size() == ZPageSizeTiny) ||
+         (_type == ZPageTypeSmall && size() == ZPageSizeSmall) ||
          (_type == ZPageTypeMedium && size() == ZPageSizeMedium) ||
          (_type == ZPageTypeLarge && is_aligned(size(), ZGranuleSize)),
          "Page type/size mismatch");

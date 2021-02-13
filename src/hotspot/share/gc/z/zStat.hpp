@@ -425,6 +425,7 @@ class ZStatRelocation : public AllStatic {
 private:
   static ZRelocationSetSelectorStats _selector_stats;
   static size_t                      _forwarding_usage;
+  static size_t                      _tiny_in_place_count;
   static size_t                      _small_in_place_count;
   static size_t                      _medium_in_place_count;
 
@@ -435,7 +436,7 @@ private:
 public:
   static void set_at_select_relocation_set(const ZRelocationSetSelectorStats& selector_stats);
   static void set_at_install_relocation_set(size_t forwarding_usage);
-  static void set_at_relocate_end(size_t small_in_place_count, size_t medium_in_place_count);
+  static void set_at_relocate_end(size_t tiny_in_place_count, size_t small_in_place_count, size_t medium_in_place_count);
 
   static void print();
 };

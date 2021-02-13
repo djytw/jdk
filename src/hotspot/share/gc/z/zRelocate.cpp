@@ -144,6 +144,50 @@ static bool should_free_target_page(ZPage* page) {
   return page != NULL && page->top() == page->start();
 }
 
+class ZRelocateTinyAllocator {
+private:
+  volatile size_t _in_place_count;
+
+public:
+  ZRelocateTinyAllocator() :
+      _in_place_count(0) {}
+
+  ZPage* alloc_target_page(ZForwarding* forwarding, ZPage* target) {
+    ZPage* const page = alloc_page(forwarding);
+    if (page == NULL) {
+      Atomic::inc(&_in_place_count);
+    }
+
+    return page;
+  }
+
+  void share_target_page(ZPage* page) {
+    // Does nothing
+  }
+
+  void free_target_page(ZPage* page) {
+    if (should_free_target_page(page)) {
+      free_page(page);
+    }
+  }
+
+  void free_relocated_page(ZPage* page) {
+    free_page(page);
+  }
+
+  uintptr_t alloc_object(ZPage* page, size_t size) const {
+    return (page != NULL) ? page->alloc_object(size) : 0;
+  }
+
+  void undo_alloc_object(ZPage* page, uintptr_t addr, size_t size) const {
+    page->undo_alloc_object(addr, size);
+  }
+
+  const size_t in_place_count() const {
+    return _in_place_count;
+  }
+};
+
 class ZRelocateSmallAllocator {
 private:
   volatile size_t _in_place_count;
@@ -367,8 +411,13 @@ public:
 class ZRelocateTask : public ZTask {
 private:
   ZRelocationSetParallelIterator _iter;
+  ZRelocateTinyAllocator         _tiny_allocator;
   ZRelocateSmallAllocator        _small_allocator;
   ZRelocateMediumAllocator       _medium_allocator;
+
+  static bool is_tiny(ZForwarding* forwarding) {
+    return forwarding->type() == ZPageTypeTiny;
+  }
 
   static bool is_small(ZForwarding* forwarding) {
     return forwarding->type() == ZPageTypeSmall;
@@ -378,20 +427,25 @@ public:
   ZRelocateTask(ZRelocationSet* relocation_set) :
       ZTask("ZRelocateTask"),
       _iter(relocation_set),
+      _tiny_allocator(),
       _small_allocator(),
       _medium_allocator() {}
 
   ~ZRelocateTask() {
-    ZStatRelocation::set_at_relocate_end(_small_allocator.in_place_count(),
+    ZStatRelocation::set_at_relocate_end(_tiny_allocator.in_place_count(),
+                                         _small_allocator.in_place_count(),
                                          _medium_allocator.in_place_count());
   }
 
   virtual void work() {
+    ZRelocateClosure<ZRelocateTinyAllocator> tiny(&_tiny_allocator);
     ZRelocateClosure<ZRelocateSmallAllocator> small(&_small_allocator);
     ZRelocateClosure<ZRelocateMediumAllocator> medium(&_medium_allocator);
 
     for (ZForwarding* forwarding; _iter.next(&forwarding);) {
-      if (is_small(forwarding)) {
+      if (is_tiny(forwarding)) {
+        tiny.do_forwarding(forwarding);
+      } else if (is_small(forwarding)) {
         small.do_forwarding(forwarding);
       } else {
         medium.do_forwarding(forwarding);

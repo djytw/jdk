@@ -32,9 +32,11 @@ size_t     ZPageSizeMedium;
 
 size_t     ZObjectSizeLimitMedium;
 
+const int& ZObjectAlignmentTinyShift   = LogMinObjAlignmentInBytes;
 const int& ZObjectAlignmentSmallShift  = LogMinObjAlignmentInBytes;
 int        ZObjectAlignmentMediumShift;
 
+const int& ZObjectAlignmentTiny       = MinObjAlignmentInBytes;
 const int& ZObjectAlignmentSmall       = MinObjAlignmentInBytes;
 int        ZObjectAlignmentMedium;
 

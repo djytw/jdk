@@ -32,11 +32,13 @@ class ZPageCacheFlushClosure;
 
 class ZPageCache {
 private:
+  ZPerNUMA<ZList<ZPage> > _tiny;
   ZPerNUMA<ZList<ZPage> > _small;
   ZList<ZPage>            _medium;
   ZList<ZPage>            _large;
   uint64_t                _last_commit;
 
+  ZPage* alloc_tiny_page();
   ZPage* alloc_small_page();
   ZPage* alloc_medium_page();
   ZPage* alloc_large_page(size_t size);

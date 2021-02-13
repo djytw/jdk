@@ -39,7 +39,9 @@
 class ZPageTypeConstant : public JfrSerializer {
 public:
   virtual void serialize(JfrCheckpointWriter& writer) {
-    writer.write_count(3);
+    writer.write_count(4);
+    writer.write_key(ZPageTypeTiny);
+    writer.write("Tiny");
     writer.write_key(ZPageTypeSmall);
     writer.write("Small");
     writer.write_key(ZPageTypeMedium);
