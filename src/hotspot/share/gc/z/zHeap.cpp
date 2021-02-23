@@ -112,12 +112,12 @@ size_t ZHeap::tlab_used() const {
 }
 
 size_t ZHeap::max_tlab_size() const {
-  return ZObjectSizeLimitTiny;
+  return ZObjectSizeLimitSmall;
 }
 
 size_t ZHeap::unsafe_max_tlab_alloc() const {
   size_t size = _object_allocator.remaining();
-
+  
   if (size < MinTLABSize) {
     // The remaining space in the allocator is not enough to
     // fit the smallest possible TLAB. This means that the next
