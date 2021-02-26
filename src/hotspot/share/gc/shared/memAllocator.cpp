@@ -270,7 +270,8 @@ HeapWord* MemAllocator::allocate_inside_tlab(Allocation& allocation) const {
   assert(UseTLAB, "should use UseTLAB");
 
   // Try allocating from an existing TLAB.
-  HeapWord* mem = _thread->tlab().allocate(_word_size);
+  ThreadLocalAllocBuffer& tlab = _use_tiny_tlab ? _thread->tlab_tiny() : _thread->tlab();
+  HeapWord* mem = tlab.allocate(_word_size);
   if (mem != NULL) {
     return mem;
   }
@@ -281,7 +282,7 @@ HeapWord* MemAllocator::allocate_inside_tlab(Allocation& allocation) const {
 
 HeapWord* MemAllocator::allocate_inside_tlab_slow(Allocation& allocation) const {
   HeapWord* mem = NULL;
-  ThreadLocalAllocBuffer& tlab = _thread->tlab();
+  ThreadLocalAllocBuffer& tlab = _use_tiny_tlab ? _thread->tlab_tiny() : _thread->tlab();
 
   if (JvmtiExport::should_post_sampled_object_alloc()) {
     tlab.set_back_allocation_end();

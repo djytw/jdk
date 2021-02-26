@@ -171,6 +171,11 @@ uintptr_t ZObjectAllocator::alloc_object(size_t size, ZAllocationFlags flags) {
   }
 }
 
+uintptr_t ZObjectAllocator::alloc_object_force_tiny(size_t size) {
+  ZAllocationFlags flags;
+  return alloc_tiny_object(size, flags);
+}
+
 uintptr_t ZObjectAllocator::alloc_object(size_t size) {
   ZAllocationFlags flags;
   return alloc_object(size, flags);

@@ -329,6 +329,7 @@ Thread::Thread() {
 void Thread::initialize_tlab() {
   if (UseTLAB) {
     tlab().initialize();
+    tlab_tiny().initialize();
   }
 }
 
@@ -1991,6 +1992,7 @@ void JavaThread::exit(bool destroy_vm, ExitType exit_type) {
 
   if (UseTLAB) {
     tlab().retire();
+    tlab_tiny().retire();
   }
 
   if (JvmtiEnv::environments_might_exist()) {
@@ -2050,6 +2052,7 @@ void JavaThread::cleanup_failed_attach_current_thread(bool is_daemon) {
 
   if (UseTLAB) {
     tlab().retire();
+    tlab_tiny().retire();
   }
 
   Threads::remove(this, is_daemon);

@@ -76,7 +76,11 @@ inline jlong Thread::cooked_allocated_bytes() {
       // ending up with incorrect values. There is still a race between
       // incrementing _allocated_bytes and clearing the TLAB, that might
       // cause double counting in rare cases.
-      return allocated_bytes + used_bytes;
+      allocated_bytes += used_bytes;
+    }
+    size_t used_bytes_tiny = tlab_tiny().used_bytes();
+    if (used_bytes_tiny <= ThreadLocalAllocBuffer::max_size_in_bytes()) {
+      allocated_bytes += used_bytes_tiny;
     }
   }
   return allocated_bytes;

@@ -263,6 +263,7 @@ void ThreadLocalAllocBuffer::startup_initialization() {
   // before the heap is initialized.  So reinitialize it now.
   guarantee(Thread::current()->is_Java_thread(), "tlab initialization thread not Java thread");
   Thread::current()->tlab().initialize();
+  Thread::current()->tlab_tiny().initialize();
 
   log_develop_trace(gc, tlab)("TLAB min: " SIZE_FORMAT " initial: " SIZE_FORMAT " max: " SIZE_FORMAT,
                                min_size(), Thread::current()->tlab().initial_desired_size(), max_size());

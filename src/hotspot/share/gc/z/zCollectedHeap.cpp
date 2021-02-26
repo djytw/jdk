@@ -127,7 +127,7 @@ uint32_t ZCollectedHeap::hash_oop(oop obj) const {
 
 HeapWord* ZCollectedHeap::allocate_new_tlab(size_t min_size, size_t requested_size, size_t* actual_size) {
   const size_t size_in_bytes = ZUtils::words_to_bytes(align_object_size(requested_size));
-  const uintptr_t addr = _heap.alloc_tlab(size_in_bytes);
+  const uintptr_t addr = (min_size <= ZObjectSizeLimitTiny) ? _heap.alloc_tlab_tiny(size_in_bytes) : _heap.alloc_tlab(size_in_bytes);
 
   if (addr != 0) {
     *actual_size = requested_size;
@@ -337,4 +337,38 @@ bool ZCollectedHeap::is_oop(oop object) const {
 
 bool ZCollectedHeap::supports_concurrent_gc_breakpoints() const {
   return true;
+}
+
+
+void ZCollectedHeap::ensure_parsability(bool retire_tlabs) {
+  assert(SafepointSynchronize::is_at_safepoint() || !is_init_completed(),
+         "Should only be called at a safepoint or at start-up");
+  ThreadLocalAllocStats stats;
+
+  for (JavaThreadIteratorWithHandle jtiwh; JavaThread *thread = jtiwh.next();) {
+    BarrierSet::barrier_set()->make_parsable(thread);
+    if (UseTLAB) {
+      if (retire_tlabs) {
+        thread->tlab().retire(&stats);
+        thread->tlab_tiny().retire(&stats);
+      } else {
+        thread->tlab().make_parsable();
+        thread->tlab_tiny().make_parsable();
+      }
+    }
+  }
+
+  stats.publish();
+}
+
+void ZCollectedHeap::resize_all_tlabs() {
+  assert(SafepointSynchronize::is_at_safepoint() || !is_init_completed(),
+         "Should only resize tlabs at safepoint");
+
+  if (UseTLAB && ResizeTLAB) {
+    for (JavaThreadIteratorWithHandle jtiwh; JavaThread *thread = jtiwh.next(); ) {
+      thread->tlab().resize();
+      thread->tlab_tiny().resize();
+    }
+  }
 }

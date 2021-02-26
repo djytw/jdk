@@ -123,6 +123,9 @@ public:
   virtual void verify(VerifyOption option /* ignored */);
   virtual bool is_oop(oop object) const;
   virtual bool supports_concurrent_gc_breakpoints() const;
+
+  virtual void ensure_parsability(bool retire_tlabs);
+  virtual void resize_all_tlabs();
 };
 
 #endif // SHARE_GC_Z_ZCOLLECTEDHEAP_HPP

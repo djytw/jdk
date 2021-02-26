@@ -113,6 +113,7 @@ public:
 
   // Object allocation
   uintptr_t alloc_tlab(size_t size);
+  uintptr_t alloc_tlab_tiny(size_t size);
   uintptr_t alloc_object(size_t size);
   uintptr_t alloc_object_non_blocking(size_t size);
   void undo_alloc_object(uintptr_t addr, size_t size);

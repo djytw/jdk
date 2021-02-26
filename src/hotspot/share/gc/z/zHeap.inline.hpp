@@ -68,6 +68,11 @@ inline uintptr_t ZHeap::alloc_tlab(size_t size) {
   return _object_allocator.alloc_object(size);
 }
 
+inline uintptr_t ZHeap::alloc_tlab_tiny(size_t size) {
+  guarantee(size <= max_tlab_size(), "TLAB too large");
+  return _object_allocator.alloc_object_force_tiny(size);
+}
+
 inline uintptr_t ZHeap::alloc_object(size_t size) {
   uintptr_t addr = _object_allocator.alloc_object(size);
   assert(ZAddress::is_good_or_null(addr), "Bad address");

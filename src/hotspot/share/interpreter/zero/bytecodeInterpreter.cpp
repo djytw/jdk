@@ -1805,7 +1805,11 @@ run:
             size_t obj_size = ik->size_helper();
             oop result = NULL;
             if (UseTLAB) {
-              result = (oop) THREAD->tlab().allocate(obj_size);
+              if (UseZGC && obj_size <= ZObjectSizeLimitTiny) {
+                result = (oop) THREAD->tlab_tiny().allocate(obj_size);
+              } else {
+                result = (oop) THREAD->tlab().allocate(obj_size);
+              }
             }
             if (result != NULL) {
               // Initialize object (if nonzero size and need) and then the header.

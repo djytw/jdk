@@ -26,6 +26,8 @@
 #define SHARE_GC_SHARED_MEMALLOCATOR_HPP
 
 #include "gc/shared/collectedHeap.hpp"
+#include "gc/shared/gc_globals.hpp"
+#include "gc/z/zGlobals.hpp"
 #include "memory/memRegion.hpp"
 #include "oops/oopsHierarchy.hpp"
 #include "utilities/exceptions.hpp"
@@ -40,6 +42,7 @@ protected:
   Thread* const        _thread;
   Klass* const         _klass;
   const size_t         _word_size;
+  const bool           _use_tiny_tlab;
 
 private:
   // Allocate from the current thread's TLAB, with broken-out slow path.
@@ -51,7 +54,8 @@ protected:
   MemAllocator(Klass* klass, size_t word_size, Thread* thread)
     : _thread(thread),
       _klass(klass),
-      _word_size(word_size)
+      _word_size(word_size),
+      _use_tiny_tlab(UseZGC && (word_size <= ZObjectSizeLimitTiny))
   { }
 
   // This function clears the memory of the object
