@@ -55,7 +55,7 @@ protected:
     : _thread(thread),
       _klass(klass),
       _word_size(word_size),
-      _use_tiny_tlab(UseZGC && (word_size <= ZObjectSizeLimitTiny))
+      _use_tiny_tlab(UseZGC && (word_size <= ZObjectSizeLimitTiny / HeapWordSize))
   { }
 
   // This function clears the memory of the object
