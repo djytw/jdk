@@ -818,6 +818,11 @@ protected:
   static ByteSize tlab_top_offset()              { return byte_offset_of(Thread, _tlab) + ThreadLocalAllocBuffer::top_offset(); }
   static ByteSize tlab_pf_top_offset()           { return byte_offset_of(Thread, _tlab) + ThreadLocalAllocBuffer::pf_top_offset(); }
 
+  static ByteSize tlab_tiny_start_offset()            { return byte_offset_of(Thread, _tlab_tiny) + ThreadLocalAllocBuffer::start_offset(); }
+  static ByteSize tlab_tiny_end_offset()              { return byte_offset_of(Thread, _tlab_tiny) + ThreadLocalAllocBuffer::end_offset(); }
+  static ByteSize tlab_tiny_top_offset()              { return byte_offset_of(Thread, _tlab_tiny) + ThreadLocalAllocBuffer::top_offset(); }
+  static ByteSize tlab_tiny_pf_top_offset()           { return byte_offset_of(Thread, _tlab_tiny) + ThreadLocalAllocBuffer::pf_top_offset(); }
+
   static ByteSize allocated_bytes_offset()       { return byte_offset_of(Thread, _allocated_bytes); }
 
   JFR_ONLY(DEFINE_THREAD_LOCAL_OFFSET_JFR;)

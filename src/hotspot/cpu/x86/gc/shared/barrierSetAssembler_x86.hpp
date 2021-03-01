@@ -75,6 +75,12 @@ public:
                              int con_size_in_bytes,
                              Register t1, Register t2,
                              Label& slow_case);
+  virtual void tlab_allocate_tiny(MacroAssembler* masm,
+                                  Register thread, Register obj,
+                                  Register var_size_in_bytes,
+                                  int con_size_in_bytes,
+                                  Register t1, Register t2,
+                                  Label& slow_case);
   virtual void eden_allocate(MacroAssembler* masm,
                              Register thread, Register obj,
                              Register var_size_in_bytes,

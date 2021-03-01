@@ -30,6 +30,8 @@
 #include "gc/shared/barrierSetAssembler.hpp"
 #include "gc/shared/collectedHeap.hpp"
 #include "gc/shared/tlab_globals.hpp"
+#include "gc/shared/gc_globals.hpp"
+#include "gc/z/zGlobals.hpp"
 #include "interpreter/interpreter.hpp"
 #include "oops/arrayOop.hpp"
 #include "oops/markWord.hpp"
@@ -150,7 +152,11 @@ void C1_MacroAssembler::unlock_object(Register hdr, Register obj, Register disp_
 // Defines obj, preserves var_size_in_bytes
 void C1_MacroAssembler::try_allocate(Register obj, Register var_size_in_bytes, int con_size_in_bytes, Register t1, Register t2, Label& slow_case) {
   if (UseTLAB) {
-    tlab_allocate(noreg, obj, var_size_in_bytes, con_size_in_bytes, t1, t2, slow_case);
+    if (UseZGC && ((size_t)con_size_in_bytes) <= ZObjectSizeLimitTiny) {
+      tlab_allocate_tiny(noreg, obj, var_size_in_bytes, con_size_in_bytes, t1, t2, slow_case);
+    } else {
+      tlab_allocate(noreg, obj, var_size_in_bytes, con_size_in_bytes, t1, t2, slow_case);
+    }
   } else {
     eden_allocate(noreg, obj, var_size_in_bytes, con_size_in_bytes, t1, slow_case);
   }
