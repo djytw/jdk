@@ -41,6 +41,7 @@
 #include "opto/loopnode.hpp"
 #include "opto/macro.hpp"
 #include "opto/memnode.hpp"
+#include "opto/movenode.hpp"
 #include "opto/narrowptrnode.hpp"
 #include "opto/node.hpp"
 #include "opto/opaquenode.hpp"
@@ -1163,11 +1164,24 @@ bool PhaseMacroExpand::eliminate_boxing_node(CallStaticJavaNode *boxing) {
 }
 
 //---------------------------set_eden_pointers-------------------------
-void PhaseMacroExpand::set_eden_pointers(Node* &eden_top_adr, Node* &eden_end_adr) {
+void PhaseMacroExpand::set_eden_pointers(Node* &eden_top_adr, Node* &eden_end_adr, Node* &size_in_bytes) {
   if (UseTLAB) {                // Private allocation: load from TLS
     Node* thread = transform_later(new ThreadLocalNode());
-    int tlab_top_offset = in_bytes(JavaThread::tlab_top_offset());
-    int tlab_end_offset = in_bytes(JavaThread::tlab_end_offset());
+    Node* istiny_cmp = new CmpLNode(size_in_bytes, MakeConX(ZObjectSizeLimitTiny));
+    transform_later(istiny_cmp);
+    Node *istiny_bol = new BoolNode(istiny_cmp, BoolTest::le);
+    transform_later(istiny_bol);
+
+    Node* tlab_small_top_offset = MakeConX(in_bytes(JavaThread::tlab_top_offset()));
+    Node* tlab_small_end_offset = MakeConX(in_bytes(JavaThread::tlab_end_offset()));
+    Node* tlab_tiny_top_offset = MakeConX(in_bytes(JavaThread::tlab_tiny_top_offset()));
+    Node* tlab_tiny_end_offset = MakeConX(in_bytes(JavaThread::tlab_tiny_end_offset()));
+
+    Node *tlab_top_offset = new CMoveLNode(istiny_bol, tlab_small_top_offset, tlab_tiny_top_offset, TypeLong::LONG);
+    transform_later(tlab_top_offset);
+    Node *tlab_end_offset = new CMoveLNode(istiny_bol, tlab_small_end_offset, tlab_tiny_end_offset, TypeLong::LONG);
+    transform_later(tlab_end_offset);
+    
     eden_top_adr = basic_plus_adr(top()/*not oop*/, thread, tlab_top_offset);
     eden_end_adr = basic_plus_adr(top()/*not oop*/, thread, tlab_end_offset);
   } else {                      // Shared allocation: load from globals

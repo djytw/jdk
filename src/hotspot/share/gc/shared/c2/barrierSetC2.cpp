@@ -708,7 +708,7 @@ Node* BarrierSetC2::obj_allocate(PhaseMacroExpand* macro, Node* ctrl, Node* mem,
   Node* eden_top_adr;
   Node* eden_end_adr;
 
-  macro->set_eden_pointers(eden_top_adr, eden_end_adr);
+  macro->set_eden_pointers(eden_top_adr, eden_end_adr, size_in_bytes);
 
   // Load Eden::end.  Loop invariant and hoisted.
   //
