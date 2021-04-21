@@ -156,12 +156,14 @@ void C1_MacroAssembler::try_allocate(Register obj, Register var_size_in_bytes, i
       tlab_allocate_tiny(noreg, obj, var_size_in_bytes, con_size_in_bytes, t1, t2, slow_case);
     } else if (UseZGC && (con_size_in_bytes == 0)) {
       Label normal;
+      Label end;
       cmpl(var_size_in_bytes, ZObjectSizeLimitTiny);
       jcc(Assembler::greater, normal);
       tlab_allocate_tiny(noreg, obj, var_size_in_bytes, con_size_in_bytes, t1, t2, slow_case);
-      return;
+      jmp(end);
       bind(normal);
       tlab_allocate(noreg, obj, var_size_in_bytes, con_size_in_bytes, t1, t2, slow_case);
+      bind(end);
     } else {
       tlab_allocate(noreg, obj, var_size_in_bytes, con_size_in_bytes, t1, t2, slow_case);
     }
